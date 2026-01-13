@@ -47,7 +47,7 @@ const DailyReport = () => {
 
   const handleClearData = () => {
     if (window.confirm("هل أنت متأكد من حذف جميع بيانات الطلبات؟ لا يمكن التراجع عن هذا الإجراء.")) {
-      DataStore.setOrders([]);
+      DataStore.setOrders([]); // FIX: Corrected function call
       setOrders([]);
       toast.success("تم حذف جميع الطلبات بنجاح.");
     }

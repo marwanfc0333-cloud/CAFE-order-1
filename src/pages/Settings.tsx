@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Lock, Plus, Trash2, Edit, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
-import { Product, Waiter, AddonCategory, AddonOption } from '../types';
+import { Product, Waiter } from '../types';
 
 // --- Component: Admin PIN Gate ---
 
@@ -98,7 +98,6 @@ const ProductManagement: React.FC<{ products: Product[]; refreshData: () => void
       name: '',
       price: 0,
       imageUrl: '/placeholder.svg',
-      availableAddons: [],
     });
     setIsAdding(true);
   };
@@ -160,13 +159,6 @@ interface ProductEditFormProps {
 
 const ProductEditForm: React.FC<ProductEditFormProps> = ({ product: initialProduct, onSave, onCancel }) => {
     const [product, setProduct] = useState(initialProduct);
-
-    const handleAddonChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        // Simplified addon management for the scope of this component
-        // In a full app, this would be a complex nested form.
-        // For now, we just allow editing the main fields.
-        toast.info("لتبسيط الإعدادات، لا يمكن تعديل الإضافات من هنا. يرجى تعديلها مباشرة في ملف storage.ts إذا لزم الأمر.");
-    };
 
     return (
         <div className="w-full space-y-3 p-2 bg-accent rounded-md">

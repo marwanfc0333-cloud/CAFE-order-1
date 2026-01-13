@@ -12,7 +12,7 @@ interface AppContextType {
   login: (waiter: Waiter) => void;
   logout: () => void;
   
-  addProductToOrder: (product: Product, selectedAddons: OrderItem['selectedAddons']) => void;
+  addProductToOrder: (product: Product) => void;
   updateOrderItemQuantity: (itemIndex: number, quantity: number) => void;
   removeOrderItem: (itemIndex: number) => void;
   
@@ -57,12 +57,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     toast.info("تم تسجيل الخروج بنجاح");
   };
 
-  const calculateItemPrice = (product: Product, selectedAddons: OrderItem['selectedAddons'], quantity: number) => {
-    let total = product.price;
-    selectedAddons.forEach(addon => {
-      total += addon.priceAdjustment;
-    });
-    return total * quantity;
+  // Simplified calculation: price is just base price * quantity
+  const calculateItemPrice = (product: Product, quantity: number) => {
+    return product.price * quantity;
   };
 
   const updateOrderTotal = (order: Order): Order => {
@@ -70,19 +67,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return { ...order, totalAmount };
   };
 
-  const addProductToOrder = (product: Product, selectedAddons: OrderItem['selectedAddons']) => {
+  // Simplified addProductToOrder
+  const addProductToOrder = (product: Product) => {
     if (!currentOrder) return;
+
+    // Check if the product already exists in the order (since there are no addons to differentiate)
+    const existingItemIndex = currentOrder.items.findIndex(item => item.productId === product.id);
+
+    if (existingItemIndex !== -1) {
+        // If it exists, just increase quantity
+        updateOrderItemQuantity(existingItemIndex, currentOrder.items[existingItemIndex].quantity + 1);
+        return;
+    }
 
     const newItem: OrderItem = {
       productId: product.id,
       productName: product.name,
       basePrice: product.price,
       quantity: 1,
-      selectedAddons,
+      selectedAddons: [], // Kept for type compatibility but empty
       totalPrice: 0,
     };
     
-    newItem.totalPrice = calculateItemPrice(product, selectedAddons, newItem.quantity);
+    newItem.totalPrice = calculateItemPrice(product, newItem.quantity);
 
     const updatedItems = [...currentOrder.items, newItem];
     let updatedOrder = { ...currentOrder, items: updatedItems };
@@ -100,7 +107,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const product = products.find(p => p.id === item.productId);
         if (!product) return item;
         
-        const newTotalPrice = calculateItemPrice(product, item.selectedAddons, quantity);
+        // Calculate price without addons
+        const newTotalPrice = calculateItemPrice(product, quantity);
         return { ...item, quantity, totalPrice: newTotalPrice };
       }
       return item;
@@ -130,11 +138,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // 1. Save the order
     DataStore.saveOrder(currentOrder);
     
-    // 2. Handle printing (We will implement the actual print utility later)
+    // 2. Handle printing (We rely on the user clicking the print button or auto-print setting)
     if (settings.autoPrint) {
-        // Placeholder for print logic
+        // Simulate auto-print action
         console.log("Auto-printing order:", currentOrder.id);
-        // In a real scenario, this would trigger the print utility
     }
     
     toast.success(`تم تأكيد الطلب رقم ${currentOrder.id.split('-')[1]}`);

@@ -3,20 +3,6 @@ export interface Product {
   name: string;
   price: number; // Price in local currency unit
   imageUrl: string;
-  availableAddons: AddonCategory[];
-}
-
-export interface AddonOption {
-  id: string;
-  name: string;
-  priceAdjustment: number; // Can be positive or negative
-}
-
-export interface AddonCategory {
-  id: string;
-  name: string;
-  options: AddonOption[];
-  isSingleSelect: boolean; // e.g., Size (single select) vs Sugar (multi-select)
 }
 
 export interface Waiter {
@@ -34,7 +20,7 @@ export interface OrderItem {
     categoryName: string;
     optionName: string;
     priceAdjustment: number;
-  }[];
+  }[]; // Kept empty array for compatibility but functionally unused
   totalPrice: number; // Calculated price including quantity and addons
 }
 

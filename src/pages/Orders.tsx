@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Button } from '@/components/ui/button';
-import { LogOut, Settings, Printer, Minus, Plus, Trash2, X } from 'lucide-react';
-import { Product, OrderItem, AddonCategory, AddonOption } from '../types';
+import { LogOut, Settings, Printer, Minus, Plus, Trash2 } from 'lucide-react';
+import { Product, OrderItem } from '../types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -21,146 +16,27 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addProductToOrder } = useAppContext();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedAddons, setSelectedAddons] = useState<OrderItem['selectedAddons']>([]);
-
-  const handleAddonClick = (category: AddonCategory, option: AddonOption) => {
-    setSelectedAddons(prev => {
-      const existingIndex = prev.findIndex(a => a.categoryName === category.name && a.optionName === option.name);
-      
-      if (category.isSingleSelect) {
-        // Remove all options from this category first
-        const filtered = prev.filter(a => a.categoryName !== category.name);
-        return [...filtered, { categoryName: category.name, optionName: option.name, priceAdjustment: option.priceAdjustment }];
-      } else {
-        // Multi-select
-        if (existingIndex > -1) {
-          return prev.filter((_, index) => index !== existingIndex);
-        } else {
-          return [...prev, { categoryName: category.name, optionName: option.name, priceAdjustment: option.priceAdjustment }];
-        }
-      }
-    });
-  };
-
-  const handleConfirmAdd = () => {
-    addProductToOrder(product, selectedAddons);
-    setIsDialogOpen(false);
-    setSelectedAddons([]);
-  };
 
   const handleProductClick = () => {
-    if (product.availableAddons.length > 0) {
-      // Open dialog for addons
-      setIsDialogOpen(true);
-      // Initialize selected addons for single select categories
-      const initialAddons: OrderItem['selectedAddons'] = [];
-      product.availableAddons.forEach(category => {
-        if (category.isSingleSelect && category.options.length > 0) {
-          // Select the first option by default (usually the base price option)
-          const defaultOption = category.options[0];
-          initialAddons.push({
-            categoryName: category.name,
-            optionName: defaultOption.name,
-            priceAdjustment: defaultOption.priceAdjustment,
-          });
-        }
-      });
-      setSelectedAddons(initialAddons);
-    } else {
-      // Add directly
-      addProductToOrder(product, []);
-    }
-  };
-
-  const isAddonSelected = (categoryName: string, optionName: string) => {
-    return selectedAddons.some(a => a.categoryName === categoryName && a.optionName === optionName);
+    // Direct add since addons are removed
+    addProductToOrder(product);
   };
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <div 
-        className="cursor-pointer hover:shadow-lg transition-shadow duration-200 rounded-lg overflow-hidden bg-card border"
-        onClick={handleProductClick}
-      >
-        <img 
-          src={product.imageUrl} 
-          alt={product.name} 
-          className="w-full h-32 object-cover"
-        />
-        <div className="p-3 text-center">
-          <h3 className="font-semibold text-lg truncate">{product.name}</h3>
-          <p className="text-primary font-bold text-xl mt-1">{product.price} ر.س</p>
-        </div>
+    <div 
+      className="cursor-pointer hover:shadow-lg transition-shadow duration-200 rounded-lg overflow-hidden bg-card border"
+      onClick={handleProductClick}
+    >
+      <img 
+        src={product.imageUrl} 
+        alt={product.name} 
+        className="w-full h-32 object-cover"
+      />
+      <div className="p-3 text-center">
+        <h3 className="font-semibold text-lg truncate">{product.name}</h3>
+        <p className="text-primary font-bold text-xl mt-1">{product.price} ر.س</p>
       </div>
-
-      {/* Addons Dialog */}
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">إضافات: {product.name}</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-6 py-4">
-          {product.availableAddons.map(category => (
-            <div key={category.id} className="space-y-3 border-b pb-4">
-              <h4 className="text-xl font-bold text-primary">{category.name}</h4>
-              
-              {category.isSingleSelect ? (
-                <RadioGroup 
-                  dir="rtl"
-                  value={selectedAddons.find(a => a.categoryName === category.name)?.optionName || category.options[0]?.name}
-                  onValueChange={(value) => {
-                    const option = category.options.find(o => o.name === value);
-                    if (option) {
-                      handleAddonClick(category, option);
-                    }
-                  }}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  {category.options.map(option => (
-                    <div key={option.id} className="flex items-center space-x-2 space-x-reverse p-3 border rounded-lg hover:bg-accent cursor-pointer">
-                      <RadioGroupItem value={option.name} id={option.id} />
-                      <Label htmlFor={option.id} className="flex justify-between w-full text-lg cursor-pointer">
-                        <span>{option.name}</span>
-                        {option.priceAdjustment !== 0 && (
-                          <span className={cn("font-medium", option.priceAdjustment > 0 ? "text-green-600" : "text-red-600")}>
-                            {option.priceAdjustment > 0 ? `+${option.priceAdjustment}` : option.priceAdjustment} ر.س
-                          </span>
-                        )}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  {category.options.map(option => (
-                    <div key={option.id} className="flex items-center space-x-2 space-x-reverse p-3 border rounded-lg hover:bg-accent cursor-pointer">
-                      <Checkbox
-                        id={option.id}
-                        checked={isAddonSelected(category.name, option.name)}
-                        onCheckedChange={() => handleAddonClick(category, option)}
-                      />
-                      <Label htmlFor={option.id} className="flex justify-between w-full text-lg cursor-pointer">
-                        <span>{option.name}</span>
-                        {option.priceAdjustment !== 0 && (
-                          <span className={cn("font-medium", option.priceAdjustment > 0 ? "text-green-600" : "text-red-600")}>
-                            {option.priceAdjustment > 0 ? `+${option.priceAdjustment}` : option.priceAdjustment} ر.س
-                          </span>
-                        )}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-        <DialogFooter>
-          <Button onClick={handleConfirmAdd} className="w-full h-12 text-lg">
-            إضافة إلى الطلب
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    </div>
   );
 };
 
@@ -228,14 +104,7 @@ const OrderTicket: React.FC = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-grow">
                   <p className="font-semibold text-lg">{item.productName}</p>
-                  <div className="text-sm text-muted-foreground pr-2">
-                    {item.selectedAddons.map((addon, i) => (
-                      <span key={i} className="block">
-                        - {addon.optionName} ({addon.categoryName})
-                        {addon.priceAdjustment !== 0 && ` (${addon.priceAdjustment > 0 ? '+' : ''}${addon.priceAdjustment} ر.س)`}
-                      </span>
-                    ))}
-                  </div>
+                  {/* Removed Addon display logic */}
                 </div>
                 <div className="text-right font-bold text-lg min-w-[80px]">
                   {item.totalPrice.toFixed(2)} ر.س

@@ -29,37 +29,7 @@ function setStorageItem<T>(key: string, value: T): void {
 
 // --- Data Initialization (Mock Data) ---
 
-const initialAddons = [
-  {
-    id: "size",
-    name: "الحجم",
-    isSingleSelect: true,
-    options: [
-      { id: "small", name: "صغير", priceAdjustment: 0 },
-      { id: "medium", name: "متوسط", priceAdjustment: 5 },
-      { id: "large", name: "كبير", priceAdjustment: 10 },
-    ],
-  },
-  {
-    id: "milk",
-    name: "الحليب",
-    isSingleSelect: true,
-    options: [
-      { id: "full", name: "كامل الدسم", priceAdjustment: 0 },
-      { id: "skim", name: "قليل الدسم", priceAdjustment: 0 },
-      { id: "oat", name: "حليب الشوفان", priceAdjustment: 8 },
-    ],
-  },
-  {
-    id: "sugar",
-    name: "السكر",
-    isSingleSelect: false,
-    options: [
-      { id: "extra_sugar", name: "سكر إضافي", priceAdjustment: 0 },
-      { id: "no_sugar", name: "بدون سكر", priceAdjustment: 0 },
-    ],
-  },
-];
+// الإضافات محذوفة بناءً على طلب المستخدم
 
 const initialProducts: Product[] = [
   {
@@ -67,28 +37,24 @@ const initialProducts: Product[] = [
     name: "إسبريسو",
     price: 15,
     imageUrl: "/placeholder.svg",
-    availableAddons: initialAddons.filter(a => a.id !== 'size'),
   },
   {
     id: "p2",
     name: "لاتيه",
     price: 22,
     imageUrl: "/placeholder.svg",
-    availableAddons: initialAddons,
   },
   {
     id: "p3",
     name: "كابتشينو",
     price: 20,
     imageUrl: "/placeholder.svg",
-    availableAddons: initialAddons,
   },
   {
     id: "p4",
     name: "كيك الشوكولاتة",
     price: 30,
     imageUrl: "/placeholder.svg",
-    availableAddons: [],
   },
 ];
 
@@ -127,6 +93,7 @@ export const DataStore = {
     }
     setStorageItem(STORAGE_KEYS.ORDERS, orders);
   },
+  setOrders: (orders: Order[]) => setStorageItem(STORAGE_KEYS.ORDERS, orders), // FIX: Added setOrders
   
   // Settings
   getSettings: () => getStorageItem(STORAGE_KEYS.SETTINGS, initialSettings),
