@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import PrintOrderLayout from '@/components/PrintOrderLayout'; // Import the new component
-import { printReceiptAsPdf } from '@/utils/pdfPrint'; // Import PDF utility
 
 // --- Component: Product Card ---
 
@@ -62,29 +61,23 @@ const OrderTicket: React.FC<OrderTicketProps> = ({ printRef }) => {
     }
   };
 
+  // Simplified print function using window.print()
   const handlePrint = useCallback(async () => {
     if (!currentOrder || currentOrder.items.length === 0) {
         toast.error("لا يوجد منتجات في الطلب للطباعة.");
         return;
     }
-    const printElement = printRef.current;
-    if (printElement) {
-        toast.loading("جاري إعداد وطباعة الإيصال...", { id: 'print-loading' });
-        try {
-            // Use the PDF utility to generate and trigger print
-            await printReceiptAsPdf(printElement, settings.receiptWidth);
-            toast.success("تم فتح نافذة الطباعة بنجاح.", { id: 'print-loading' });
-        } catch (error) {
-            console.error("Printing failed:", error);
-            toast.error("فشل في إنشاء أو طباعة ملف PDF.", { id: 'print-loading' });
-        }
-    } else {
-        toast.error("تعذر العثور على محتوى الطباعة.");
-    }
-  }, [currentOrder, printRef, settings.receiptWidth]);
+    
+    // Trigger the browser's print dialog
+    window.print();
+    toast.info("تم إرسال الطلب إلى الطابعة.");
+    
+  }, [currentOrder]);
 
   const handleSubmit = async () => {
-    // Pass the PDF printing function as a callback to submitOrder
+    // Pass the simple window.print function as a callback to submitOrder
+    // Note: submitOrder handles the autoPrint setting internally, 
+    // but we pass the callback for explicit manual print if needed.
     await submitOrder(handlePrint);
   };
 
@@ -188,7 +181,7 @@ const OrderTicket: React.FC<OrderTicketProps> = ({ printRef }) => {
                 disabled={currentOrder.items.length === 0}
             >
                 <Printer className="h-5 w-5 ml-2" />
-                طباعة يدوية (PDF)
+                طباعة يدوية
             </Button>
             <Button 
                 variant="secondary" 
@@ -211,8 +204,7 @@ const Orders = () => {
 
   return (
     <>
-      {/* Hidden container for printing - now referenced by printRef */}
-      {/* We rely on .print-container CSS class to hide it off-screen */}
+      {/* Hidden container for printing - relies on global CSS print styles */}
       {currentOrder && (
         <div className="print-container" ref={printRef}>
           <PrintOrderLayout order={currentOrder} />
