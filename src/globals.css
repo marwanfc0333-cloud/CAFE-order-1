@@ -99,3 +99,33 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Print Styles */
+@media print {
+  /* Hide everything by default */
+  body > #root > div {
+    display: none;
+  }
+
+  /* Only show the print container */
+  .print-container {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Ensure the print layout component is visible */
+  .print-only {
+    display: block !important;
+  }
+}
+
+/* Hide print-only content in screen view */
+.print-only {
+    display: none;
+}

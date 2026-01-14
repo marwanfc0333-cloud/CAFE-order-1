@@ -7,6 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import PrintOrderLayout from '@/components/PrintOrderLayout'; // Import the new component
 
 // --- Component: Product Card ---
 
@@ -61,7 +62,7 @@ const OrderTicket: React.FC = () => {
         toast.error("لا يوجد منتجات في الطلب للطباعة.");
         return;
     }
-    // We will use the browser's print function for simulation
+    // Trigger browser print function
     window.print();
     toast.info("تم إرسال الطلب إلى الطابعة (محاكاة).");
   };
@@ -184,25 +185,34 @@ const OrderTicket: React.FC = () => {
 // --- Main Orders Page ---
 
 const Orders = () => {
-  const { products } = useAppContext();
+  const { products, currentOrder } = useAppContext();
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 min-h-screen bg-background">
-      {/* Product Grid (2/3 width on large screens) */}
-      <div className="lg:col-span-2 p-4 overflow-y-auto">
-        <h2 className="text-3xl font-bold mb-4 text-right">قائمة المنتجات</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-          {products.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+    <>
+      {/* Hidden container for printing */}
+      {currentOrder && (
+        <div className="print-container">
+          <PrintOrderLayout order={currentOrder} />
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 min-h-screen bg-background">
+        {/* Product Grid (2/3 width on large screens) */}
+        <div className="lg:col-span-2 p-4 overflow-y-auto">
+          <h2 className="text-3xl font-bold mb-4 text-right">قائمة المنتجات</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+            {products.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+
+        {/* Order Ticket (1/3 width on large screens) */}
+        <div className="lg:col-span-1 border-r bg-sidebar h-screen sticky top-0">
+          <OrderTicket />
         </div>
       </div>
-
-      {/* Order Ticket (1/3 width on large screens) */}
-      <div className="lg:col-span-1 border-r bg-sidebar h-screen sticky top-0">
-        <OrderTicket />
-      </div>
-    </div>
+    </>
   );
 };
 
