@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Button } from '@/components/ui/button';
 import { LogOut, Settings, Printer, Minus, Plus, Trash2 } from 'lucide-react';
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import PrintOrderLayout from '@/components/PrintOrderLayout'; // Import the new component
+import { printReceiptAsPdf } from '@/utils/pdfPrint'; // Import PDF utility
 
 // --- Component: Product Card ---
 
@@ -43,7 +44,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
 // --- Component: Order Ticket ---
 
-const OrderTicket: React.FC = () => {
+interface OrderTicketProps {
+    printRef: React.RefObject<HTMLDivElement>;
+}
+
+const OrderTicket: React.FC<OrderTicketProps> = ({ printRef }) => {
   const { currentOrder, currentWaiter, updateOrderItemQuantity, removeOrderItem, submitOrder, logout, settings } = useAppContext();
   const navigate = useNavigate();
 
@@ -57,14 +62,30 @@ const OrderTicket: React.FC = () => {
     }
   };
 
-  const handlePrint = () => {
+  const handlePrint = useCallback(async () => {
     if (!currentOrder || currentOrder.items.length === 0) {
         toast.error("لا يوجد منتجات في الطلب للطباعة.");
         return;
     }
-    // Trigger browser print function
-    window.print();
-    toast.info("تم إرسال الطلب إلى الطابعة (محاكاة).");
+    const printElement = printRef.current;
+    if (printElement) {
+        toast.loading("جاري إعداد وطباعة الإيصال...", { id: 'print-loading' });
+        try {
+            // Use the PDF utility to generate and trigger print
+            await printReceiptAsPdf(printElement, settings.receiptWidth);
+            toast.success("تم فتح نافذة الطباعة بنجاح.", { id: 'print-loading' });
+        } catch (error) {
+            console.error("Printing failed:", error);
+            toast.error("فشل في إنشاء أو طباعة ملف PDF.", { id: 'print-loading' });
+        }
+    } else {
+        toast.error("تعذر العثور على محتوى الطباعة.");
+    }
+  }, [currentOrder, printRef, settings.receiptWidth]);
+
+  const handleSubmit = async () => {
+    // Pass the PDF printing function as a callback to submitOrder
+    await submitOrder(handlePrint);
   };
 
   const handleDailyReport = () => {
@@ -152,7 +173,7 @@ const OrderTicket: React.FC = () => {
         </div>
         
         <Button 
-          onClick={submitOrder} 
+          onClick={handleSubmit} 
           disabled={currentOrder.items.length === 0}
           className="w-full h-14 text-xl bg-green-600 hover:bg-green-700"
         >
@@ -167,7 +188,7 @@ const OrderTicket: React.FC = () => {
                 disabled={currentOrder.items.length === 0}
             >
                 <Printer className="h-5 w-5 ml-2" />
-                طباعة يدوية
+                طباعة يدوية (PDF)
             </Button>
             <Button 
                 variant="secondary" 
@@ -186,12 +207,14 @@ const OrderTicket: React.FC = () => {
 
 const Orders = () => {
   const { products, currentOrder } = useAppContext();
+  const printRef = useRef<HTMLDivElement>(null);
 
   return (
     <>
-      {/* Hidden container for printing */}
+      {/* Hidden container for printing - now referenced by printRef */}
+      {/* We use absolute positioning and opacity to hide it while keeping it in the DOM for html2canvas */}
       {currentOrder && (
-        <div className="print-container">
+        <div className="print-container absolute -z-50 opacity-0" ref={printRef}>
           <PrintOrderLayout order={currentOrder} />
         </div>
       )}
@@ -209,7 +232,7 @@ const Orders = () => {
 
         {/* Order Ticket (1/3 width on large screens) */}
         <div className="lg:col-span-1 border-r bg-sidebar h-screen sticky top-0">
-          <OrderTicket />
+          <OrderTicket printRef={printRef} />
         </div>
       </div>
     </>

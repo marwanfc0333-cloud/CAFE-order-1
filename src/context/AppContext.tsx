@@ -25,7 +25,7 @@ interface AppContextType {
   updateOrderItemQuantity: (itemIndex: number, quantity: number) => void;
   removeOrderItem: (itemIndex: number) => void;
   
-  submitOrder: () => Promise<void>;
+  submitOrder: (printCallback?: () => Promise<void>) => Promise<void>;
   
   refreshData: () => void;
 }
@@ -138,7 +138,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     toast.info("تم حذف المنتج من الطلب");
   };
 
-  const submitOrder = async () => {
+  const submitOrder = async (printCallback?: () => Promise<void>) => {
     if (!currentOrder || currentOrder.items.length === 0) {
       toast.error("الطلب فارغ ولا يمكن تأكيده.");
       return;
@@ -147,10 +147,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // 1. Save the order
     DataStore.saveOrder(currentOrder);
     
-    // 2. Handle printing (We rely on the user clicking the print button or auto-print setting)
-    if (settings.autoPrint) {
-        // Simulate auto-print action
-        console.log("Auto-printing order:", currentOrder.id);
+    // 2. Handle printing
+    if (settings.autoPrint && printCallback) {
+        await printCallback();
+    } else if (settings.autoPrint) {
+        // Fallback for simple window.print if no callback provided
+        window.print();
     }
     
     toast.success(`تم تأكيد الطلب رقم ${currentOrder.id.split('-')[1]}`);
