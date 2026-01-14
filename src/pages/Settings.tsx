@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { DataStore } from '../data/storage';
@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Lock, Plus, Trash2, Edit, Save, X, Image, User, ImagePlus } from 'lucide-react';
+import { ArrowLeft, Lock, Plus, Trash2, Edit, Save, X, Image, User, ImagePlus, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { Product, Waiter } from '../types';
@@ -71,46 +71,97 @@ interface ImageSelectorDialogProps {
 
 const ImageSelectorDialog: React.FC<ImageSelectorDialogProps> = ({ currentImageUrl, onSelectImage }) => {
     const [open, setOpen] = useState(false);
+    const [manualUrl, setManualUrl] = useState(currentImageUrl.startsWith('http') ? currentImageUrl : '');
 
     const handleSelect = (url: string) => {
         onSelectImage(url);
         setOpen(false);
     };
+    
+    const handleManualUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const url = e.target.value;
+        setManualUrl(url);
+        onSelectImage(url);
+    };
+
+    const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            if (file.size > 500 * 1024) { // Limit file size to 500KB for localStorage
+                toast.error("حجم الصورة كبير جداً. يرجى اختيار صورة أصغر (أقل من 500 كيلوبايت).");
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                if (typeof reader.result === 'string') {
+                    onSelectImage(reader.result);
+                    toast.success("تم تحميل الصورة بنجاح (Base64).");
+                    setOpen(false);
+                }
+            };
+            reader.onerror = () => {
+                toast.error("فشل في قراءة ملف الصورة.");
+            };
+            reader.readAsDataURL(file);
+        }
+    }, [onSelectImage]);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline" className="w-full">
                     <ImagePlus className="h-4 w-4 ml-2" />
-                    اختيار صورة
+                    اختيار صورة / تحميل
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                     <DialogTitle>اختيار صورة المنتج</DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto p-2">
+                
+                {/* File Upload Section */}
+                <div className="space-y-2 border p-3 rounded-md">
+                    <Label htmlFor="fileUpload" className="font-semibold flex items-center">
+                        <Upload className="h-4 w-4 ml-2" />
+                        تحميل صورة من جهازك (تخزين محلي)
+                    </Label>
+                    <Input 
+                        id="fileUpload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="cursor-pointer"
+                    />
+                    <p className="text-xs text-muted-foreground">سيتم تحويل الصورة إلى نص (Base64) وتخزينها محليًا. يفضل استخدام صور صغيرة.</p>
+                </div>
+
+                {/* Manual URL Section */}
+                <div className="mt-4 space-y-2">
+                    <Label htmlFor="imageUrlManual">أو أدخل رابط URL خارجي:</Label>
+                    <Input 
+                        id="imageUrlManual"
+                        placeholder="https://example.com/image.jpg"
+                        value={manualUrl}
+                        onChange={handleManualUrlChange}
+                        className="mt-1"
+                    />
+                </div>
+                
+                {/* Mock Images Section */}
+                <h3 className="font-semibold mt-4 border-t pt-4">أو اختر من الصور الافتراضية:</h3>
+                <div className="grid grid-cols-3 gap-4 max-h-[40vh] overflow-y-auto p-2">
                     {mockImageUrls.map((url, index) => (
                         <div 
                             key={index} 
                             className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-4 transition-all ${
-                                url === currentImageUrl ? 'border-primary ring-2 ring-primary' : 'border-transparent hover:border-gray-300'
+                                currentImageUrl === url ? 'border-primary ring-2 ring-primary' : 'border-transparent hover:border-gray-300'
                             }`}
                             onClick={() => handleSelect(url)}
                         >
                             <img src={url} alt={`Mock Image ${index + 1}`} className="w-full h-full object-cover" />
                         </div>
                     ))}
-                </div>
-                <div className="mt-4">
-                    <Label htmlFor="imageUrlManual">أو أدخل رابط URL يدويًا:</Label>
-                    <Input 
-                        id="imageUrlManual"
-                        placeholder="https://example.com/image.jpg"
-                        value={currentImageUrl}
-                        onChange={(e) => onSelectImage(e.target.value)}
-                        className="mt-1"
-                    />
                 </div>
             </DialogContent>
         </Dialog>
