@@ -68,6 +68,8 @@ const initialSettings = {
   cafeName: "مقهى دياد",
   adminPin: "0000",
   autoPrint: true,
+  headerMessage: "فاتورة طلب", // New setting
+  footerMessage: "شكراً لزيارتكم!", // New setting
 };
 
 // --- Public API ---

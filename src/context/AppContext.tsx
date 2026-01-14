@@ -7,7 +7,13 @@ interface AppContextType {
   currentWaiter: Waiter | null;
   currentOrder: Order | null;
   products: Product[];
-  settings: { cafeName: string; adminPin: string; autoPrint: boolean };
+  settings: { 
+    cafeName: string; 
+    adminPin: string; 
+    autoPrint: boolean;
+    headerMessage: string; // New
+    footerMessage: string; // New
+  };
   
   login: (waiter: Waiter) => void;
   logout: () => void;

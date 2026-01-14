@@ -17,7 +17,7 @@ const PrintOrderLayout: React.FC<PrintOrderLayoutProps> = ({ order }) => {
     <div className="print-only p-4 text-black bg-white w-[300px] mx-auto text-sm">
       <div className="text-center border-b border-dashed pb-2 mb-2">
         <h1 className="text-xl font-bold mb-1">{settings.cafeName}</h1>
-        <p>فاتورة طلب</p>
+        <p>{settings.headerMessage}</p>
       </div>
 
       <div className="text-right mb-2">
@@ -53,7 +53,7 @@ const PrintOrderLayout: React.FC<PrintOrderLayoutProps> = ({ order }) => {
       </div>
 
       <div className="text-center mt-4 pt-2 border-t border-dashed">
-        <p className="text-xs">شكراً لزيارتكم!</p>
+        <p className="text-xs whitespace-pre-wrap">{settings.footerMessage}</p>
       </div>
     </div>
   );

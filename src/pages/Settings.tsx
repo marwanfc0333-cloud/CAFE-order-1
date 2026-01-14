@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { Product, Waiter } from '../types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { mockImageUrls } from '../data/mockImages'; // Import mock images
+import { Textarea } from '@/components/ui/textarea'; // Import Textarea
 
 // --- Component: Admin PIN Gate ---
 
@@ -505,6 +506,31 @@ const GeneralSettings: React.FC<{ settings: any; refreshData: () => void }> = ({
                         inputMode="numeric"
                     />
                 </div>
+                
+                {/* Print Settings Section */}
+                <Card className="p-4 bg-background">
+                    <CardTitle className="text-lg mb-3">تخصيص فاتورة الطباعة</CardTitle>
+                    <div className="space-y-3">
+                        <div className="space-y-2">
+                            <Label htmlFor="headerMessage">رسالة رأس الفاتورة (تحت اسم المقهى)</Label>
+                            <Input 
+                                id="headerMessage"
+                                value={currentSettings.headerMessage}
+                                onChange={(e) => setCurrentSettings({...currentSettings, headerMessage: e.target.value})}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="footerMessage">رسالة تذييل الفاتورة (رسالة الشكر)</Label>
+                            <Textarea 
+                                id="footerMessage"
+                                value={currentSettings.footerMessage}
+                                onChange={(e) => setCurrentSettings({...currentSettings, footerMessage: e.target.value})}
+                                rows={2}
+                            />
+                        </div>
+                    </div>
+                </Card>
+
                 <div className="flex items-center justify-between space-x-2 space-x-reverse p-2 border rounded-md">
                     <Label htmlFor="autoPrint">الطباعة التلقائية عند تأكيد الطلب</Label>
                     <Switch
