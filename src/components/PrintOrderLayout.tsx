@@ -3,6 +3,7 @@ import { Order } from '../types';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useAppContext } from '../context/AppContext';
+import { Wifi } from 'lucide-react';
 
 interface PrintOrderLayoutProps {
   order: Order;
@@ -14,7 +15,10 @@ const PrintOrderLayout: React.FC<PrintOrderLayoutProps> = ({ order }) => {
   const { settings } = useAppContext();
   
   return (
-    <div className="print-only p-4 text-black bg-white w-[300px] mx-auto text-sm">
+    <div 
+      className="print-only p-4 text-black bg-white mx-auto text-sm"
+      style={{ width: `${settings.receiptWidth}px` }}
+    >
       <div className="text-center border-b border-dashed pb-2 mb-2">
         <h1 className="text-xl font-bold mb-1">{settings.cafeName}</h1>
         <p>{settings.headerMessage}</p>
@@ -51,6 +55,18 @@ const PrintOrderLayout: React.FC<PrintOrderLayoutProps> = ({ order }) => {
           <span>{order.totalAmount.toFixed(2)} ر.س</span>
         </div>
       </div>
+      
+      {/* Wi-Fi Details Section */}
+      {(settings.wifiSSID || settings.wifiPassword) && (
+        <div className="text-center mt-4 pt-2 border-t border-dashed">
+            <h3 className="font-semibold text-base mb-1 flex items-center justify-center">
+                <Wifi className="h-4 w-4 ml-1" />
+                شبكة الواي فاي
+            </h3>
+            {settings.wifiSSID && <p className="text-sm">الشبكة: {settings.wifiSSID}</p>}
+            {settings.wifiPassword && <p className="text-sm">الرمز: {settings.wifiPassword}</p>}
+        </div>
+      )}
 
       <div className="text-center mt-4 pt-2 border-t border-dashed">
         <p className="text-xs whitespace-pre-wrap">{settings.footerMessage}</p>

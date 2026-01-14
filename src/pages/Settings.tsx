@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Lock, Plus, Trash2, Edit, Save, X, Image, User, ImagePlus, Upload } from 'lucide-react';
+import { ArrowLeft, Lock, Plus, Trash2, Edit, Save, X, Image, User, ImagePlus, Upload, Wifi } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { Product, Waiter } from '../types';
@@ -512,6 +512,17 @@ const GeneralSettings: React.FC<{ settings: any; refreshData: () => void }> = ({
                     <CardTitle className="text-lg mb-3">تخصيص فاتورة الطباعة</CardTitle>
                     <div className="space-y-3">
                         <div className="space-y-2">
+                            <Label htmlFor="receiptWidth">عرض الإيصال (بالبكسل، 300px هو العرض القياسي)</Label>
+                            <Input 
+                                id="receiptWidth"
+                                type="number"
+                                value={currentSettings.receiptWidth}
+                                onChange={(e) => setCurrentSettings({...currentSettings, receiptWidth: parseInt(e.target.value) || 300})}
+                                min={200}
+                                max={600}
+                            />
+                        </div>
+                        <div className="space-y-2">
                             <Label htmlFor="headerMessage">رسالة رأس الفاتورة (تحت اسم المقهى)</Label>
                             <Input 
                                 id="headerMessage"
@@ -530,6 +541,33 @@ const GeneralSettings: React.FC<{ settings: any; refreshData: () => void }> = ({
                         </div>
                     </div>
                 </Card>
+                
+                {/* Wi-Fi Settings Section */}
+                <Card className="p-4 bg-background">
+                    <CardTitle className="text-lg mb-3 flex items-center">
+                        <Wifi className="h-5 w-5 ml-2" />
+                        معلومات شبكة الواي فاي (تظهر في الإيصال)
+                    </CardTitle>
+                    <div className="space-y-3">
+                        <div className="space-y-2">
+                            <Label htmlFor="wifiSSID">اسم الشبكة (SSID)</Label>
+                            <Input 
+                                id="wifiSSID"
+                                value={currentSettings.wifiSSID}
+                                onChange={(e) => setCurrentSettings({...currentSettings, wifiSSID: e.target.value})}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="wifiPassword">كلمة المرور</Label>
+                            <Input 
+                                id="wifiPassword"
+                                value={currentSettings.wifiPassword}
+                                onChange={(e) => setCurrentSettings({...currentSettings, wifiPassword: e.target.value})}
+                            />
+                        </div>
+                    </div>
+                </Card>
+
 
                 <div className="flex items-center justify-between space-x-2 space-x-reverse p-2 border rounded-md">
                     <Label htmlFor="autoPrint">الطباعة التلقائية عند تأكيد الطلب</Label>

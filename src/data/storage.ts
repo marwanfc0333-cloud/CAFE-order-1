@@ -68,8 +68,11 @@ const initialSettings = {
   cafeName: "مقهى دياد",
   adminPin: "0000",
   autoPrint: true,
-  headerMessage: "فاتورة طلب", // New setting
-  footerMessage: "شكراً لزيارتكم!", // New setting
+  headerMessage: "فاتورة طلب",
+  footerMessage: "شكراً لزيارتكم!",
+  wifiSSID: "DyadCafe_Guest", // New setting
+  wifiPassword: "password123", // New setting
+  receiptWidth: 300, // New setting (in pixels)
 };
 
 // --- Public API ---

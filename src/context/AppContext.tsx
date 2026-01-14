@@ -11,8 +11,11 @@ interface AppContextType {
     cafeName: string; 
     adminPin: string; 
     autoPrint: boolean;
-    headerMessage: string; // New
-    footerMessage: string; // New
+    headerMessage: string;
+    footerMessage: string;
+    wifiSSID: string; // New
+    wifiPassword: string; // New
+    receiptWidth: number; // New
   };
   
   login: (waiter: Waiter) => void;
