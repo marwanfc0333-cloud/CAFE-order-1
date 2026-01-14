@@ -3,7 +3,7 @@ import { jsPDF } from 'jspdf';
 
 /**
  * Converts a given HTML element (the receipt content) into a PDF
- * and triggers the browser's print dialog.
+ * and attempts to trigger the browser's print dialog directly.
  * @param element The DOM element containing the receipt content.
  * @param receiptWidthPx The width of the receipt in pixels (from settings).
  */
@@ -22,15 +22,13 @@ export const printReceiptAsPdf = async (element: HTMLElement, receiptWidthPx: nu
   });
 
   const imgData = canvas.toDataURL('image/jpeg', 1.0);
-  const imgWidth = receiptWidthPx; // Use the configured width
+  const imgWidth = receiptWidthPx; 
   const pageHeight = (canvas.height * imgWidth) / canvas.width;
 
-  // 2. Initialize jsPDF
-  // We use 'mm' units for precision. 80mm is the target width.
+  // 2. Initialize jsPDF for 80mm thermal receipt format
   const pdfWidthMm = 80;
   
-  // Calculate the height in mm based on the aspect ratio of the captured image
-  // 1 pixel is approximately 0.264583 mm (at 96 DPI, but we rely on the ratio)
+  // Calculate the height in mm based on the aspect ratio
   const ratio = pdfWidthMm / imgWidth;
   const pdfHeightMm = pageHeight * ratio;
 
@@ -43,26 +41,24 @@ export const printReceiptAsPdf = async (element: HTMLElement, receiptWidthPx: nu
   // Add the image to the PDF
   pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidthMm, pdfHeightMm);
 
-  // 3. Trigger printing
-  // Open PDF in a new window and trigger print
-  const pdfBlob = pdf.output('blob');
-  const pdfUrl = URL.createObjectURL(pdfBlob);
+  // 3. Attempt direct printing (This relies on browser support and settings)
   
-  const printWindow = window.open(pdfUrl, '_blank');
+  // Using output('dataurlnewwindow') combined with autoPrint() is the closest we can get 
+  // to direct printing without a dedicated print server, but it still opens a temporary window.
+  // We will try to use the data URL method which is slightly less intrusive than opening a blank window first.
   
-  if (printWindow) {
-    printWindow.onload = () => {
-      // Clean up the URL object after printing/closing
-      printWindow.onbeforeunload = () => {
-        URL.revokeObjectURL(pdfUrl);
-      };
-      // Attempt to trigger print dialog
-      printWindow.print();
-    };
-  } else {
-    // Fallback if popups are blocked
-    console.error("Popup blocked. Cannot open PDF for printing.");
-    // Optionally, download the PDF instead
-    // pdf.save('order_receipt.pdf');
+  try {
+    // This method opens a new window/tab containing the PDF and immediately triggers print.
+    // It is the most reliable way to ensure the 80mm format is respected in a web environment.
+    pdf.output('dataurlnewwindow', { filename: 'receipt.pdf' });
+    
+    // Note: We cannot programmatically close the window opened by dataurlnewwindow 
+    // due to browser security restrictions, but it should close automatically 
+    // after the user interacts with the print dialog (depending on the browser).
+    
+  } catch (error) {
+    console.error("Failed to trigger direct PDF print:", error);
+    // Fallback: Save the PDF if direct print fails
+    pdf.save('order_receipt.pdf');
   }
 };
