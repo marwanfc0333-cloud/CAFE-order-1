@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Lock, Plus, Trash2, Edit, Save, X } from 'lucide-react';
+import { ArrowLeft, Lock, Plus, Trash2, Edit, Save, X, Image } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { Product, Waiter } from '../types';
@@ -173,6 +173,14 @@ const ProductEditForm: React.FC<ProductEditFormProps> = ({ product: initialProdu
                 value={product.price} 
                 onChange={(e) => setProduct({...product, price: parseFloat(e.target.value) || 0})}
             />
+            <div className="flex items-center space-x-2 space-x-reverse">
+                <Image className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                <Input 
+                    placeholder="رابط الصورة (URL)" 
+                    value={product.imageUrl} 
+                    onChange={(e) => setProduct({...product, imageUrl: e.target.value})}
+                />
+            </div>
             <div className="flex justify-end space-x-2 space-x-reverse">
                 <Button size="sm" onClick={() => onSave(product)} disabled={!product.name || product.price <= 0}>
                     <Save className="h-4 w-4 ml-1" /> حفظ
