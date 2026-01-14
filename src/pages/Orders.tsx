@@ -212,9 +212,9 @@ const Orders = () => {
   return (
     <>
       {/* Hidden container for printing - now referenced by printRef */}
-      {/* We use absolute positioning and opacity to hide it while keeping it in the DOM for html2canvas */}
+      {/* We rely on the .print-only class in globals.css to hide it in screen view */}
       {currentOrder && (
-        <div className="print-container absolute -z-50 opacity-0" ref={printRef}>
+        <div className="print-container print-only" ref={printRef}>
           <PrintOrderLayout order={currentOrder} />
         </div>
       )}
