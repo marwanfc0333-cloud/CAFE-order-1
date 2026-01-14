@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Lock, Plus, Trash2, Edit, Save, X, Image, User } from 'lucide-react';
+import { ArrowLeft, Lock, Plus, Trash2, Edit, Save, X, Image, User, ImagePlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { Product, Waiter } from '../types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { mockImageUrls } from '../data/mockImages'; // Import mock images
 
 // --- Component: Admin PIN Gate ---
 
@@ -58,6 +60,116 @@ const AdminGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </Card>
     </div>
   );
+};
+
+// --- Component: Image Selector Dialog ---
+
+interface ImageSelectorDialogProps {
+    currentImageUrl: string;
+    onSelectImage: (url: string) => void;
+}
+
+const ImageSelectorDialog: React.FC<ImageSelectorDialogProps> = ({ currentImageUrl, onSelectImage }) => {
+    const [open, setOpen] = useState(false);
+
+    const handleSelect = (url: string) => {
+        onSelectImage(url);
+        setOpen(false);
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline" className="w-full">
+                    <ImagePlus className="h-4 w-4 ml-2" />
+                    اختيار صورة
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                    <DialogTitle>اختيار صورة المنتج</DialogTitle>
+                </DialogHeader>
+                <div className="grid grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto p-2">
+                    {mockImageUrls.map((url, index) => (
+                        <div 
+                            key={index} 
+                            className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-4 transition-all ${
+                                url === currentImageUrl ? 'border-primary ring-2 ring-primary' : 'border-transparent hover:border-gray-300'
+                            }`}
+                            onClick={() => handleSelect(url)}
+                        >
+                            <img src={url} alt={`Mock Image ${index + 1}`} className="w-full h-full object-cover" />
+                        </div>
+                    ))}
+                </div>
+                <div className="mt-4">
+                    <Label htmlFor="imageUrlManual">أو أدخل رابط URL يدويًا:</Label>
+                    <Input 
+                        id="imageUrlManual"
+                        placeholder="https://example.com/image.jpg"
+                        value={currentImageUrl}
+                        onChange={(e) => onSelectImage(e.target.value)}
+                        className="mt-1"
+                    />
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+
+// --- Component: Product Edit Form (Simplified) ---
+
+interface ProductEditFormProps {
+    product: Product;
+    onSave: (product: Product) => void;
+    onCancel: () => void;
+}
+
+const ProductEditForm: React.FC<ProductEditFormProps> = ({ product: initialProduct, onSave, onCancel }) => {
+    const [product, setProduct] = useState(initialProduct);
+
+    const handleImageSelect = (url: string) => {
+        setProduct({...product, imageUrl: url});
+    };
+
+    return (
+        <div className="w-full space-y-3 p-2 bg-accent rounded-md">
+            <Input 
+                placeholder="اسم المنتج" 
+                value={product.name} 
+                onChange={(e) => setProduct({...product, name: e.target.value})}
+            />
+            <Input 
+                type="number"
+                placeholder="السعر (ر.س)" 
+                value={product.price} 
+                onChange={(e) => setProduct({...product, price: parseFloat(e.target.value) || 0})}
+            />
+            
+            {/* Image Preview and Selector */}
+            <div className="flex items-center space-x-3 space-x-reverse">
+                <img 
+                    src={product.imageUrl} 
+                    alt="Product Preview" 
+                    className="w-16 h-16 object-cover rounded-md border flex-shrink-0"
+                />
+                <ImageSelectorDialog 
+                    currentImageUrl={product.imageUrl}
+                    onSelectImage={handleImageSelect}
+                />
+            </div>
+
+            <div className="flex justify-end space-x-2 space-x-reverse">
+                <Button size="sm" onClick={() => onSave(product)} disabled={!product.name || product.price <= 0}>
+                    <Save className="h-4 w-4 ml-1" /> حفظ
+                </Button>
+                <Button size="sm" variant="outline" onClick={onCancel}>
+                    <X className="h-4 w-4 ml-1" /> إلغاء
+                </Button>
+            </div>
+        </div>
+    );
 };
 
 // --- Component: Product Management ---
@@ -147,50 +259,6 @@ const ProductManagement: React.FC<{ products: Product[]; refreshData: () => void
       </CardContent>
     </Card>
   );
-};
-
-// --- Component: Product Edit Form (Simplified) ---
-
-interface ProductEditFormProps {
-    product: Product;
-    onSave: (product: Product) => void;
-    onCancel: () => void;
-}
-
-const ProductEditForm: React.FC<ProductEditFormProps> = ({ product: initialProduct, onSave, onCancel }) => {
-    const [product, setProduct] = useState(initialProduct);
-
-    return (
-        <div className="w-full space-y-3 p-2 bg-accent rounded-md">
-            <Input 
-                placeholder="اسم المنتج" 
-                value={product.name} 
-                onChange={(e) => setProduct({...product, name: e.target.value})}
-            />
-            <Input 
-                type="number"
-                placeholder="السعر (ر.س)" 
-                value={product.price} 
-                onChange={(e) => setProduct({...product, price: parseFloat(e.target.value) || 0})}
-            />
-            <div className="flex items-center space-x-2 space-x-reverse">
-                <Image className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                <Input 
-                    placeholder="رابط الصورة (URL)" 
-                    value={product.imageUrl} 
-                    onChange={(e) => setProduct({...product, imageUrl: e.target.value})}
-                />
-            </div>
-            <div className="flex justify-end space-x-2 space-x-reverse">
-                <Button size="sm" onClick={() => onSave(product)} disabled={!product.name || product.price <= 0}>
-                    <Save className="h-4 w-4 ml-1" /> حفظ
-                </Button>
-                <Button size="sm" variant="outline" onClick={onCancel}>
-                    <X className="h-4 w-4 ml-1" /> إلغاء
-                </Button>
-            </div>
-        </div>
-    );
 };
 
 // --- Component: Waiter Edit Form ---
