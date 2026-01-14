@@ -70,7 +70,7 @@ const DailyReport = () => {
         <CardContent className="grid grid-cols-2 gap-4 text-xl">
           <div className="flex justify-between border-b pb-2">
             <span className="font-medium">إجمالي المبيعات:</span>
-            <span className="font-bold text-green-600">{totalSales.toFixed(2)} ر.س</span>
+            <span className="font-bold text-green-600">{totalSales.toFixed(2)} د.إ</span>
           </div>
           <div className="flex justify-between border-b pb-2">
             <span className="font-medium">عدد الطلبات:</span>
@@ -81,7 +81,7 @@ const DailyReport = () => {
             {Object.values(salesByWaiter).map(waiter => (
               <div key={waiter.name} className="flex justify-between text-lg py-1 border-b border-dashed">
                 <span>{waiter.name} ({waiter.count} طلب):</span>
-                <span className="font-semibold">{waiter.total.toFixed(2)} ر.س</span>
+                <span className="font-semibold">{waiter.total.toFixed(2)} د.إ</span>
               </div>
             ))}
           </div>
@@ -109,13 +109,13 @@ const DailyReport = () => {
               <div key={order.id} className="border p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
                 <div className="flex justify-between font-bold border-b pb-1 mb-2">
                   <span>رقم الطلب: {order.id.split('-')[1]}</span>
-                  <span>{order.totalAmount.toFixed(2)} ر.س</span>
+                  <span>{order.totalAmount.toFixed(2)} د.إ</span>
                 </div>
                 <p className="text-sm text-muted-foreground">النادل: {order.waiterName} | التاريخ: {formatDate(order.timestamp)}</p>
                 <ul className="list-disc pr-6 mt-2 text-sm">
                   {order.items.map((item, i) => (
                     <li key={i}>
-                      {item.productName} x{item.quantity} ({item.totalPrice.toFixed(2)} ر.س)
+                      {item.productName} x{item.quantity} ({item.totalPrice.toFixed(2)} د.إ)
                     </li>
                   ))}
                 </ul>

@@ -194,7 +194,7 @@ const ProductEditForm: React.FC<ProductEditFormProps> = ({ product: initialProdu
             />
             <Input 
                 type="number"
-                placeholder="السعر (ر.س)" 
+                placeholder="السعر (د.إ)" 
                 value={product.price} 
                 onChange={(e) => setProduct({...product, price: parseFloat(e.target.value) || 0})}
             />
@@ -287,7 +287,7 @@ const ProductManagement: React.FC<{ products: Product[]; refreshData: () => void
                 />
               ) : (
                 <div className="flex justify-between w-full items-center">
-                  <span className="font-medium">{product.name} ({product.price} ر.س)</span>
+                  <span className="font-medium">{product.name} ({product.price} د.إ)</span>
                   <div className="space-x-2 space-x-reverse">
                     <Button variant="outline" size="icon" onClick={() => setEditingProduct(product)}>
                       <Edit className="h-4 w-4" />

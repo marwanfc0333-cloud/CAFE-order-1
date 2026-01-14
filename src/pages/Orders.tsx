@@ -35,7 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       />
       <div className="p-3 text-center">
         <h3 className="font-semibold text-lg truncate">{product.name}</h3>
-        <p className="text-primary font-bold text-xl mt-1">{product.price} ر.س</p>
+        <p className="text-primary font-bold text-xl mt-1">{product.price} د.إ</p>
       </div>
     </div>
   );
@@ -108,7 +108,7 @@ const OrderTicket: React.FC = () => {
                   {/* Removed Addon display logic */}
                 </div>
                 <div className="text-right font-bold text-lg min-w-[80px]">
-                  {item.totalPrice.toFixed(2)} ر.س
+                  {item.totalPrice.toFixed(2)} د.إ
                 </div>
               </div>
               
@@ -148,7 +148,7 @@ const OrderTicket: React.FC = () => {
       <CardFooter className="flex flex-col p-4 border-t space-y-3">
         <div className="flex justify-between w-full text-2xl font-bold">
           <span>الإجمالي:</span>
-          <span>{currentOrder.totalAmount.toFixed(2)} ر.س</span>
+          <span>{currentOrder.totalAmount.toFixed(2)} د.إ</span>
         </div>
         
         <Button 

@@ -52,7 +52,7 @@ const PrintOrderLayout: React.FC<PrintOrderLayoutProps> = ({ order }) => {
       <div className="border-t border-dashed pt-2">
         <div className="flex justify-between font-bold text-lg">
           <span>الإجمالي الكلي:</span>
-          <span>{order.totalAmount.toFixed(2)} ر.س</span>
+          <span>{order.totalAmount.toFixed(2)} د.إ</span>
         </div>
       </div>
       
