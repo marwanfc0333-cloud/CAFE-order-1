@@ -126,6 +126,16 @@
 }
 
 /* Hide print-only content in screen view */
+.print-container {
+    /* Use position and size to hide it off-screen without using display: none or opacity: 0 */
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
 .print-only {
-    display: none;
+    display: block; /* Ensure the component inside is rendered */
 }
